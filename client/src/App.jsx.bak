@@ -1,0 +1,90 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './components/Layout/DashboardLayout';
+
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
+import LessonsPage from './pages/LessonsPage';
+import SimulationsPage from './pages/SimulationsPage';
+import EmergencySupportPage from './pages/EmergencySupportPage';
+import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
+import UsersManagementPage from './pages/UsersManagementPage';
+
+function AppRoutes() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading Campus Safety Hub...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+      <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
+
+      {/* Protected routes inside DashboardLayout */}
+      <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/lessons" element={<LessonsPage />} />
+        <Route path="/simulations" element={<SimulationsPage />} />
+        <Route path="/emergency" element={<EmergencySupportPage />} />
+        <Route path="/reports" element={
+          <ProtectedRoute roles={['admin', 'staff', 'officer']}>
+            <ReportsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/users" element={
+          <ProtectedRoute roles={['admin']}>
+            <UsersManagementPage />
+          </ProtectedRoute>
+        } />
+      </Route>
+
+      {/* Catch all */}
+      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1e293b',
+              color: '#f1f5f9',
+              border: '1px solid #334155',
+              borderRadius: '12px',
+              fontSize: '14px',
+            },
+            success: {
+              iconTheme: { primary: '#10b981', secondary: '#1e293b' }
+            },
+            error: {
+              iconTheme: { primary: '#ef4444', secondary: '#1e293b' }
+            }
+          }}
+        />
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;
