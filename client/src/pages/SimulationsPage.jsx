@@ -52,6 +52,17 @@ export default function SimulationsPage() {
     const [showZoneModal, setShowZoneModal] = useState(false);
     const [zoneForm, setZoneForm] = useState({ name: '', type: 'safe', description: '' });
 
+    const [showCreateDrillModal, setShowCreateDrillModal] = useState(false);
+    const [drillForm, setDrillForm] = useState({
+        title: '',
+        type: 'Fire Drill',
+        difficulty: 'Medium',
+        description: '',
+        scenario: '',
+        duration: 30,
+        instructions: [{ step: 1, action: '', timeLimit: 60 }]
+    });
+
     // Map Click Handler Component
     const MapClickHandler = () => {
         useMapEvents({
@@ -180,6 +191,37 @@ export default function SimulationsPage() {
             setZoneForm({ name: '', type: 'safe', description: '' });
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to create zone');
+        }
+    };
+
+    const handleAddInstruction = () => {
+        setDrillForm(prev => ({
+            ...prev,
+            instructions: [...prev.instructions, { step: prev.instructions.length + 1, action: '', timeLimit: 60 }]
+        }));
+    };
+
+    const handleInstructionChange = (index, field, value) => {
+        const newInstructions = [...drillForm.instructions];
+        newInstructions[index][field] = value;
+        setDrillForm({ ...drillForm, instructions: newInstructions });
+    };
+
+    const handleRemoveInstruction = (index) => {
+        const newInstructions = drillForm.instructions.filter((_, i) => i !== index).map((inst, i) => ({ ...inst, step: i + 1 }));
+        setDrillForm({ ...drillForm, instructions: newInstructions });
+    };
+
+    const handleCreateDrillSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post('/simulations', drillForm);
+            setSimulations(prev => [res.data.simulation, ...prev]);
+            toast.success('Simulation drill created successfully!');
+            setShowCreateDrillModal(false);
+            setDrillForm({ title: '', type: 'Fire Drill', difficulty: 'Medium', description: '', scenario: '', duration: 30, instructions: [{ step: 1, action: '', timeLimit: 60 }] });
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to create drill');
         }
     };
 
@@ -425,78 +467,91 @@ export default function SimulationsPage() {
 
             {/* Drills Tab */}
             {activeTab === 'drills' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {simulations.map((sim, i) => (
-                        <motion.div
-                            key={sim._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="glass-card p-5"
-                        >
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-2xl">{simTypeIcons[sim.type] || '🧪'}</span>
-                                    <div>
-                                        <h3 className="text-base font-semibold text-white">{sim.title}</h3>
-                                        <p className="text-xs text-slate-400">{sim.type} • {sim.difficulty}</p>
+                <div className="space-y-4">
+                    {isAdmin && (
+                        <div className="flex justify-end">
+                            <button onClick={() => setShowCreateDrillModal(true)} className="btn-primary flex items-center gap-2 text-sm py-2 px-4 w-auto">
+                                <HiOutlinePlus className="w-5 h-5" /> Create New Drill
+                            </button>
+                        </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {simulations.length === 0 ? (
+                            <div className="col-span-full glass-card p-8 text-center text-slate-400">
+                                No drills created yet. Start by creating a new drill.
+                            </div>
+                        ) : simulations.map((sim, i) => (
+                            <motion.div
+                                key={sim._id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.05 }}
+                                className="glass-card p-5"
+                            >
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{simTypeIcons[sim.type] || '🧪'}</span>
+                                        <div>
+                                            <h3 className="text-base font-semibold text-white">{sim.title}</h3>
+                                            <p className="text-xs text-slate-400">{sim.type} • {sim.difficulty}</p>
+                                        </div>
                                     </div>
+                                    <span className={`badge ${sim.status === 'Completed' ? 'badge-success' : sim.status === 'Active' ? 'badge-warning' : 'badge-info'}`}>
+                                        {sim.status}
+                                    </span>
                                 </div>
-                                <span className={`badge ${sim.status === 'Completed' ? 'badge-success' : sim.status === 'Active' ? 'badge-warning' : 'badge-info'}`}>
-                                    {sim.status}
-                                </span>
-                            </div>
 
-                            <p className="text-sm text-slate-400 mb-3 line-clamp-2">{sim.description}</p>
+                                <p className="text-sm text-slate-400 mb-3 line-clamp-2">{sim.description}</p>
 
-                            {sim.scenario && (
-                                <div className="bg-slate-800/50 rounded-lg p-3 mb-3 border border-slate-700">
-                                    <p className="text-xs text-slate-400 font-medium mb-1">📋 Scenario</p>
-                                    <p className="text-xs text-slate-300 line-clamp-3">{sim.scenario}</p>
+                                {sim.scenario && (
+                                    <div className="bg-slate-800/50 rounded-lg p-3 mb-3 border border-slate-700">
+                                        <p className="text-xs text-slate-400 font-medium mb-1">📋 Scenario</p>
+                                        <p className="text-xs text-slate-300 line-clamp-3">{sim.scenario}</p>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-3">
+                                    <span>⏱️ {sim.duration} min</span>
+                                    <span>👥 {sim.participants?.length || 0} participants</span>
+                                    {sim.results?.avgScore > 0 && <span>📊 Avg: {sim.results.avgScore}%</span>}
+                                    {sim.scheduledDate && <span>📅 {new Date(sim.scheduledDate).toLocaleDateString()}</span>}
                                 </div>
-                            )}
 
-                            <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-3">
-                                <span>⏱️ {sim.duration} min</span>
-                                <span>👥 {sim.participants?.length || 0} participants</span>
-                                {sim.results?.avgScore > 0 && <span>📊 Avg: {sim.results.avgScore}%</span>}
-                                {sim.scheduledDate && <span>📅 {new Date(sim.scheduledDate).toLocaleDateString()}</span>}
-                            </div>
+                                {sim.results?.aiDifficultySuggestion && (
+                                    <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-2 mb-3">
+                                        <p className="text-xs text-indigo-300">🤖 AI: {sim.results.aiDifficultySuggestion}</p>
+                                    </div>
+                                )}
 
-                            {sim.results?.aiDifficultySuggestion && (
-                                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-2 mb-3">
-                                    <p className="text-xs text-indigo-300">🤖 AI: {sim.results.aiDifficultySuggestion}</p>
-                                </div>
-                            )}
-
-                            {(() => {
-                                const joinedParticipant = sim.participants?.find(p => p.user === user?._id || p.user?._id === user?._id);
-                                return (
-                                    <div className="flex gap-2 pt-3 border-t border-slate-700">
-                                        {sim.status === 'Scheduled' || sim.status === 'Active' ? (
-                                            joinedParticipant ? (
-                                                joinedParticipant.completed ? (
-                                                    <button disabled className="btn-secondary opacity-70 cursor-not-allowed text-xs py-2 flex-1 justify-center border-emerald-500/30 text-emerald-400">
-                                                        <HiOutlineCheckCircle className="w-4 h-4" /> Results Submitted ({joinedParticipant.score}%)
-                                                    </button>
+                                {(() => {
+                                    const joinedParticipant = sim.participants?.find(p => p.user === user?._id || p.user?._id === user?._id);
+                                    return (
+                                        <div className="flex gap-2 pt-3 border-t border-slate-700">
+                                            {sim.status === 'Scheduled' || sim.status === 'Active' ? (
+                                                joinedParticipant ? (
+                                                    joinedParticipant.completed ? (
+                                                        <button disabled className="btn-secondary opacity-70 cursor-not-allowed text-xs py-2 flex-1 justify-center border-emerald-500/30 text-emerald-400">
+                                                            <HiOutlineCheckCircle className="w-4 h-4" /> Results Submitted ({joinedParticipant.score}%)
+                                                        </button>
+                                                    ) : (
+                                                        <button onClick={() => { setCompletingSim(sim); setCheckedSteps({}); }} className="btn-secondary text-xs py-2 flex-1 justify-center border-indigo-500/30 text-indigo-300 hover:bg-slate-800">
+                                                            <HiOutlineCheckCircle className="w-4 h-4" /> Complete Drill
+                                                        </button>
+                                                    )
                                                 ) : (
-                                                    <button onClick={() => { setCompletingSim(sim); setCheckedSteps({}); }} className="btn-secondary text-xs py-2 flex-1 justify-center border-indigo-500/30 text-indigo-300 hover:bg-slate-800">
-                                                        <HiOutlineCheckCircle className="w-4 h-4" /> Complete Drill
+                                                    <button onClick={() => handleJoin(sim._id)} className="btn-primary text-xs py-2 flex-1 justify-center">
+                                                        <HiOutlinePlay className="w-4 h-4" /> Join Drill
                                                     </button>
                                                 )
                                             ) : (
-                                                <button onClick={() => handleJoin(sim._id)} className="btn-primary text-xs py-2 flex-1 justify-center">
-                                                    <HiOutlinePlay className="w-4 h-4" /> Join Drill
-                                                </button>
-                                            )
-                                        ) : (
-                                            <button className="btn-secondary text-xs py-2 flex-1 justify-center">View Results</button>
-                                        )}
-                                    </div>
-                                );
-                            })()}
-                        </motion.div>
-                    ))}
+                                                <button className="btn-secondary text-xs py-2 flex-1 justify-center">View Results</button>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             )}
 
@@ -692,6 +747,163 @@ export default function SimulationsPage() {
                     </motion.div>
                 </div>
             )}
+
+            {/* Create Drill Modal */}
+            {showCreateDrillModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+                    >
+                        <div className="p-6 overflow-y-auto custom-scrollbar">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-white">Create New Drill Simulation</h2>
+                                <button onClick={() => setShowCreateDrillModal(false)} className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
+                                    <HiOutlineX className="w-5 h-5 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleCreateDrillSubmit} className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">Drill Title</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={drillForm.title}
+                                            onChange={(e) => setDrillForm({ ...drillForm, title: e.target.value })}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            placeholder="e.g. Science Lab Fire Drill"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">Drill Type</label>
+                                        <select
+                                            value={drillForm.type}
+                                            onChange={(e) => setDrillForm({ ...drillForm, type: e.target.value })}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        >
+                                            <option value="Fire Drill">Fire Drill</option>
+                                            <option value="Earthquake Drill">Earthquake Drill</option>
+                                            <option value="Flood Scenario">Flood Scenario</option>
+                                            <option value="Health Emergency">Health Emergency</option>
+                                            <option value="Active Threat">Active Threat</option>
+                                            <option value="Chemical Spill">Chemical Spill</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">Difficulty</label>
+                                        <select
+                                            value={drillForm.difficulty}
+                                            onChange={(e) => setDrillForm({ ...drillForm, difficulty: e.target.value })}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        >
+                                            <option value="Easy">Easy</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Hard">Hard</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">Duration (minutes)</label>
+                                        <input
+                                            type="number"
+                                            min="5"
+                                            required
+                                            value={drillForm.duration}
+                                            onChange={(e) => setDrillForm({ ...drillForm, duration: e.target.value })}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">Description</label>
+                                    <textarea
+                                        required
+                                        rows="2"
+                                        value={drillForm.description}
+                                        onChange={(e) => setDrillForm({ ...drillForm, description: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                                        placeholder="General description of the drill..."
+                                    ></textarea>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">Scenario Background</label>
+                                    <textarea
+                                        required
+                                        rows="2"
+                                        value={drillForm.scenario}
+                                        onChange={(e) => setDrillForm({ ...drillForm, scenario: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                                        placeholder="What is the setup or emergency context?..."
+                                    ></textarea>
+                                </div>
+
+                                <hr className="border-slate-700 my-4" />
+
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-sm font-semibold text-white">Dynamic Instructions Checklist</h3>
+                                        <button type="button" onClick={handleAddInstruction} className="text-indigo-400 hover:text-indigo-300 text-xs flex items-center gap-1 font-medium bg-indigo-500/10 px-2 py-1 rounded">
+                                            <HiOutlinePlus className="w-3 h-3" /> Add Step
+                                        </button>
+                                    </div>
+
+                                    {drillForm.instructions.map((inst, index) => (
+                                        <div key={index} className="flex gap-2 items-start bg-slate-800/30 p-3 rounded-lg border border-slate-700/50">
+                                            <div className="pt-2 text-slate-500 text-xs font-bold w-4">{inst.step}.</div>
+                                            <div className="flex-1 space-y-2">
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={inst.action}
+                                                    onChange={(e) => handleInstructionChange(index, 'action', e.target.value)}
+                                                    className="w-full bg-slate-800 border border-slate-700 rounded pl-2 pr-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                    placeholder="Action required (e.g. Drop to the floor)"
+                                                />
+                                            </div>
+                                            <div className="w-24">
+                                                <input
+                                                    type="number"
+                                                    required
+                                                    min="5"
+                                                    value={inst.timeLimit}
+                                                    onChange={(e) => handleInstructionChange(index, 'timeLimit', e.target.value)}
+                                                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                    placeholder="Time (sec)"
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveInstruction(index)}
+                                                disabled={drillForm.instructions.length === 1}
+                                                className={`p-1.5 rounded-lg mt-0.5 ${drillForm.instructions.length === 1 ? 'text-slate-600' : 'text-red-400 hover:bg-red-500/10'}`}
+                                            >
+                                                <HiOutlineX className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-3 pt-4 border-t border-slate-700 mt-6">
+                                    <button type="button" onClick={() => setShowCreateDrillModal(false)} className="btn-secondary flex-1 py-2">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn-primary flex-1 py-2">
+                                        Publish Drill
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
+
 }
