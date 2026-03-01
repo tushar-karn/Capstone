@@ -62,7 +62,8 @@ export default function Sidebar({ collapsed, onToggle }) {
 
             <aside
                 style={{ width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
-                className="fixed top-0 left-0 h-full z-50 transition-all duration-300 flex flex-col"
+                className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 flex flex-col ${collapsed ? '-translate-x-full md:translate-x-0' : 'translate-x-0'
+                    }`}
             >
                 {/* Sidebar background */}
                 <div className="absolute inset-0 bg-[#0c1222] border-r border-[var(--border-color)]" />
