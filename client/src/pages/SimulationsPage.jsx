@@ -297,7 +297,7 @@ export default function SimulationsPage() {
                                         eventHandlers={{ click: () => setSelectedZone(zone) }}
                                     >
                                         <Popup>
-                                            <div style={{ color: '#1e293b', minWidth: 180 }}>
+                                            <div style={{ color: '#f8fafc', minWidth: 180 }}>
                                                 <h4 style={{ fontWeight: 700, marginBottom: 4 }}>{zone.name}</h4>
                                                 <p style={{ fontSize: 12 }}>Risk: <strong>{zone.riskLevel}</strong> {zone.riskScore ? `(Score: ${zone.riskScore})` : ''}</p>
                                                 <p style={{ fontSize: 12, marginTop: 4 }}>{zone.description}</p>
@@ -307,7 +307,7 @@ export default function SimulationsPage() {
                                     {zone.evacuationPoints?.map((ep, i) => (
                                         <Marker key={`ep-${i}`} position={ep.coordinates} icon={createCustomIcon('#3b82f6')}>
                                             <Popup>
-                                                <div style={{ color: '#1e293b' }}>
+                                                <div style={{ color: '#f8fafc' }}>
                                                     <strong>🚪 {ep.name}</strong><br />
                                                     <span style={{ fontSize: 12 }}>Capacity: {ep.capacity}</span>
                                                 </div>
@@ -317,7 +317,7 @@ export default function SimulationsPage() {
                                     {zone.shelters?.map((sh, i) => (
                                         <Marker key={`sh-${i}`} position={sh.coordinates} icon={createCustomIcon('#10b981')}>
                                             <Popup>
-                                                <div style={{ color: '#1e293b' }}>
+                                                <div style={{ color: '#f8fafc' }}>
                                                     <strong>🏥 {sh.name}</strong><br />
                                                     <span style={{ fontSize: 12 }}>{sh.type} • Capacity: {sh.capacity}</span><br />
                                                     <span style={{ fontSize: 12 }}>📞 {sh.contact}</span>
