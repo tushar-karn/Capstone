@@ -179,7 +179,7 @@ export default function SimulationsPage() {
             const payload = {
                 ...zoneForm,
                 coordinates: newZonePoints,
-                riskLevel: zoneLabels[zoneForm.type],
+                riskLevel: zoneForm.type === 'danger' ? 'High' : zoneForm.type === 'warning' ? 'Medium' : 'Low',
                 riskScore: zoneForm.type === 'danger' ? 80 : zoneForm.type === 'warning' ? 50 : 10
             };
             const res = await api.post('/emergency-zones', payload);
