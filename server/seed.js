@@ -29,16 +29,16 @@ const seedDB = async () => {
 
     // === USERS ===
     const users = await User.create([
-      { name: 'Admin User', email: 'admin@campus.edu', password: 'admin123', role: 'admin', department: 'Administration', emergencyContact: '+1-555-0100' },
-      { name: 'Dr. Sarah Johnson', email: 'sarah@campus.edu', password: 'staff123', role: 'staff', department: 'Safety Department', emergencyContact: '+1-555-0101' },
-      { name: 'Officer Mike Chen', email: 'mike@campus.edu', password: 'officer123', role: 'officer', department: 'Campus Security', emergencyContact: '+1-555-0102' },
-      { name: 'Tushar Karn', email: 'tushar@campus.edu', password: 'student123', role: 'student', department: 'Computer Science', emergencyContact: '+1-555-0103' },
-      { name: 'Emily Davis', email: 'emily@campus.edu', password: 'student123', role: 'student', department: 'Engineering', emergencyContact: '+1-555-0104' },
-      { name: 'James Wilson', email: 'james@campus.edu', password: 'student123', role: 'student', department: 'Physics', emergencyContact: '+1-555-0105' },
-      { name: 'Priya Sharma', email: 'priya@campus.edu', password: 'student123', role: 'student', department: 'Chemistry', emergencyContact: '+1-555-0106' },
-      { name: 'Alex Thompson', email: 'alex@campus.edu', password: 'staff123', role: 'staff', department: 'Emergency Response', emergencyContact: '+1-555-0107' },
-      { name: 'Maria Garcia', email: 'maria@campus.edu', password: 'student123', role: 'student', department: 'Biology', emergencyContact: '+1-555-0108' },
-      { name: 'David Lee', email: 'david@campus.edu', password: 'officer123', role: 'officer', department: 'Campus Security', emergencyContact: '+1-555-0109' }
+      { name: 'Admin User', email: 'admin@campus.edu', password: 'admin123', role: 'admin', department: 'Administration', emergencyContact: '+91-9876543210' },
+      { name: 'Dr. Neha Verma', email: 'sarah@campus.edu', password: 'staff123', role: 'staff', department: 'Safety Department', emergencyContact: '+91-9876543211' },
+      { name: 'Officer Amit Singh', email: 'mike@campus.edu', password: 'officer123', role: 'officer', department: 'Campus Security', emergencyContact: '+91-9876543212' },
+      { name: 'Tushar Karn', email: 'tushar@campus.edu', password: 'student123', role: 'student', department: 'Computer Science', emergencyContact: '+91-9876543213' },
+      { name: 'Ananya Patel', email: 'emily@campus.edu', password: 'student123', role: 'student', department: 'Engineering', emergencyContact: '+91-9876543214' },
+      { name: 'Rohan Gupta', email: 'james@campus.edu', password: 'student123', role: 'student', department: 'Physics', emergencyContact: '+91-9876543215' },
+      { name: 'Priya Sharma', email: 'priya@campus.edu', password: 'student123', role: 'student', department: 'Chemistry', emergencyContact: '+91-9876543216' },
+      { name: 'Dr. Ramesh Kumar', email: 'alex@campus.edu', password: 'staff123', role: 'staff', department: 'Emergency Response', emergencyContact: '+91-9876543217' },
+      { name: 'Sneha Reddy', email: 'maria@campus.edu', password: 'student123', role: 'student', department: 'Biology', emergencyContact: '+91-9876543218' },
+      { name: 'Officer Vikram Malhotra', email: 'david@campus.edu', password: 'officer123', role: 'officer', department: 'Campus Security', emergencyContact: '+91-9876543219' }
     ]);
     console.log(`👥 Created ${users.length} users`);
 

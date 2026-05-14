@@ -156,9 +156,7 @@ export default function LoginPage() {
                         <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Demo Credentials</p>
                         <div className="grid grid-cols-2 gap-2 text-xs">
                             {[
-                                { role: 'Admin', email: 'admin@campus.edu', pw: 'admin123' },
                                 { role: 'Staff', email: 'sarah@campus.edu', pw: 'staff123' },
-                                { role: 'Officer', email: 'mike@campus.edu', pw: 'officer123' },
                                 { role: 'Student', email: 'tushar@campus.edu', pw: 'student123' },
                             ].map((cred) => (
                                 <button

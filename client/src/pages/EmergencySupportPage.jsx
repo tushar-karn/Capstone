@@ -16,12 +16,17 @@ L.Icon.Default.mergeOptions({
 });
 
 const emergencyContacts = [
-    { name: 'Campus Security', phone: '+1-555-911-0001', type: 'security', available: '24/7' },
-    { name: 'University Hospital', phone: '+1-555-911-0002', type: 'medical', available: '24/7' },
-    { name: 'Fire Department', phone: '+1-555-911-0003', type: 'fire', available: '24/7' },
-    { name: 'Counseling Center', phone: '+1-555-911-0004', type: 'mental', available: '8AM-8PM' },
-    { name: 'Campus Safety Office', phone: '+1-555-911-0005', type: 'safety', available: '9AM-6PM' },
-    { name: 'Poison Control', phone: '+1-555-911-0006', type: 'medical', available: '24/7' },
+    { name: 'Campus Security', phone: '01824444079', type: 'security', available: '24/7' },
+    { name: 'Health Centre', phone: '01824444079', type: 'medical', available: '24/7' },
+    { name: 'Emergency Medical', phone: '01824501227', type: 'medical', available: '24/7' },
+    { name: 'Dr. Anil Malhotra', phone: '9815364977', type: 'medical', available: 'Medical Officer' },
+    { name: 'Dr. Vijay Mohan', phone: '9878426880', type: 'medical', available: 'Resident Medical Officer' },
+    { name: 'Male Ward', phone: '01824444066', type: 'medical', available: '24/7' },
+    { name: 'Female Ward', phone: '01824444067', type: 'medical', available: '24/7' },
+    { name: 'Medical Store', phone: '01824444068', type: 'medical', available: '24/7' },
+    { name: 'Medical Laboratory', phone: '01824444069', type: 'medical', available: '24/7' },
+    { name: 'Counseling', phone: '01824444509', type: 'mental', available: '8AM-8PM' },
+    { name: 'Ambulance', phone: '9780036450', type: 'medical', available: '24/7' },
 ];
 
 const typeIcons = { security: '🔒', medical: '🏥', fire: '🔥', mental: '💚', safety: '🛡️' };
